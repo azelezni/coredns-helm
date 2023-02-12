@@ -1,4 +1,4 @@
-{{- if and .Values.deployment.enabled .Values.podDisruptionBudget -}}
+{{- if and (or .Values.deployment.enabled .Values.daemonset.enabled) .Values.podDisruptionBudget -}}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
