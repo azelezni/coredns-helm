@@ -16,9 +16,9 @@ image:
 replicaCount: 1
 
 resources:
-  limits:
-    cpu: 100m
-    memory: 128Mi
+  limits: {}
+#    cpu: 100m
+#    memory: 128Mi
   requests:
     cpu: 100m
     memory: 128Mi
@@ -94,6 +94,8 @@ rbac:
 # isClusterService specifies whether chart should be deployed as cluster-service or normal k8s app.
 isClusterService: true
 
+hostNetwork: false
+
 # Optional priority class to be used for the coredns pods. Used for autoscaler if autoscaler.priorityClassName not set.
 priorityClassName: ""
 
@@ -157,6 +159,8 @@ extraConfig: {}
 # To use the livenessProbe, the health plugin needs to be enabled in CoreDNS' server config
 livenessProbe:
   enabled: true
+  # set custom host
+  # host: ""
   initialDelaySeconds: 60
   periodSeconds: 10
   timeoutSeconds: 5
@@ -165,6 +169,8 @@ livenessProbe:
 # To use the readinessProbe, the ready plugin needs to be enabled in CoreDNS' server config
 readinessProbe:
   enabled: true
+  # set custom host
+  # host: ""
   initialDelaySeconds: 30
   periodSeconds: 10
   timeoutSeconds: 5
@@ -222,6 +228,9 @@ zoneFiles: []
 #      example.com.   IN A   192.168.99.102
 #      *.example.com. IN A   192.168.99.102
 
+extraArgs: []
+
+
 # optional array of extra volumes to create
 extraVolumes: []
 # - name: some-volume-name
@@ -242,6 +251,12 @@ extraSecrets: []
 # To support legacy deployments using CoreDNS with the "k8s-app: kube-dns" label selectors.
 # See https://github.com/coredns/helm/blob/master/charts/coredns/README.md#adopting-existing-coredns-resources
 # k8sAppLabelOverride: "kube-dns"
+
+# Set custom mountpath for Corefile configmap
+# corefileCustomPath: ""
+
+# Set custom path for Corefile configmap
+# confCustomPath: ""
 
 # Custom labels to apply to Deployment, DaemonSet, Pod, Configmap, Service, ServiceMonitor. Including autoscaler if enabled.
 customLabels: {}

@@ -71,6 +71,9 @@ spec:
       {{- if .Values.isClusterService }}
       dnsPolicy: Default
       {{- end }}
+      {{- if .Values.hostNetwork }}
+      hostNetwork: true
+      {{- end }}
       {{- if .Values.affinity }}
       affinity:
 {{ toYaml .Values.affinity | indent 8 }}
@@ -91,7 +94,12 @@ spec:
       - name: "coredns"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        args: [ "-conf", "/etc/coredns/Corefile" ]
+        args:
+          - -conf
+          - {{ default "/etc/coredns/Corefile" .Values.confCustomPath }}
+          {{- range $arg := .Values.extraArgs }}
+          - {{ $arg | quote }}
+          {{- end }}
         volumeMounts:
         - name: config-volume
           mountPath: /etc/coredns
@@ -113,6 +121,9 @@ spec:
             path: /health
             port: 8080
             scheme: HTTP
+            {{- if .Values.livenessProbe.host }}
+            host: {{ .Values.livenessProbe.host }}
+            {{- end }}
           initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
@@ -125,6 +136,9 @@ spec:
             path: /ready
             port: 8181
             scheme: HTTP
+            {{- if .Values.readinessProbe.host }}
+            host: {{ .Values.readinessProbe.host }}
+            {{- end }}
           initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
@@ -147,7 +161,7 @@ spec:
             name: {{ template "coredns.fullname" . }}
             items:
             - key: Corefile
-              path: Corefile
+              path: {{ default "Corefile" .Values.corefileCustomPath }}
             {{ range .Values.zoneFiles }}
             - key: {{ .filename }}
               path: {{ .filename }}
